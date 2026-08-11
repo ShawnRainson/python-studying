@@ -1,3 +1,4 @@
+
 def add_movie(movie):
     properties = {}
     movie_title = input("Enter movie title: ")
@@ -14,3 +15,5 @@ def remove_movie(movies):
     movie_title = input("Enter movie title for removing: ")
     del movies[movie_title]
     print("Movie data was removed!")
+
+
