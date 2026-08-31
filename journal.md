@@ -2234,3 +2234,461 @@ withdraw(1000, 300)
 withdraw(1000, 1500)
 
 должно вызвать ошибку.
+
+🥋 День 5 — ООП: классы, объекты и self
+1. Что такое класс?
+
+Ты уже давал хорошую аналогию:
+
+Класс — чертёж, объект — то, что построили по этому чертежу.
+
+Именно так.
+
+Например:
+
+class Dog:
+    pass
+
+Dog — это класс.
+
+Создаём объект:
+
+dog = Dog()
+
+Теперь:
+
+Dog
+ ↓
+класс / чертёж
+
+dog
+ ↓
+конкретный объект
+
+Можно создать сколько угодно объектов одного класса:
+
+dog1 = Dog()
+dog2 = Dog()
+dog3 = Dog()
+
+Все они созданы по одному чертежу, но являются разными объектами.
+
+2. Атрибуты объекта
+
+Допустим:
+
+class Dog:
+    def __init__(self, name):
+        self.name = name
+
+Теперь:
+
+dog = Dog("Rex")
+
+Внутри объекта появится:
+
+dog
+ └── name → "Rex"
+
+Можно обратиться:
+
+print(dog.name)
+
+Получим:
+
+Rex
+3. Что такое __init__?
+
+__init__ — специальный метод, который вызывается при создании объекта.
+
+Когда ты пишешь:
+
+dog = Dog("Rex")
+
+Python вызывает:
+
+__init__(...)
+
+и передаёт туда "Rex".
+
+Поэтому:
+
+class Dog:
+    def __init__(self, name):
+        self.name = name
+
+можно примерно воспринимать как:
+
+«Когда создаёшь Dog — положи переданное имя внутрь этого объекта».
+
+4. А что такое self?
+
+Вот здесь очень важно.
+
+class Dog:
+    def __init__(self, name):
+        self.name = name
+
+self — это ссылка на конкретный объект, с которым сейчас работает метод.
+
+Например:
+
+dog1 = Dog("Rex")
+dog2 = Dog("Bob")
+
+У них будут разные self.
+
+Условно:
+
+dog1 → self → dog1
+             name = "Rex"
+
+dog2 → self → dog2
+             name = "Bob"
+
+Поэтому:
+
+print(dog1.name)
+
+→ Rex
+
+а:
+
+print(dog2.name)
+
+→ Bob
+
+5. Методы
+
+Метод — это функция, принадлежащая классу.
+
+class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def bark(self):
+        print(f"{self.name}: Woof!")
+
+Теперь:
+
+dog = Dog("Rex")
+dog.bark()
+
+Получим:
+
+Rex: Woof!
+
+Обрати внимание:
+
+self.name
+
+позволяет методу обратиться к данным конкретного объекта.
+
+6. Что на самом деле происходит с dog.bark()?
+
+Вот это интересный момент.
+
+Когда ты пишешь:
+
+dog.bark()
+
+Python фактически передаёт объект dog в метод как self.
+
+Упрощённо можно представить:
+
+Dog.bark(dog)
+
+Именно поэтому метод объявляется:
+
+def bark(self):
+
+а вызывается:
+
+dog.bark()
+
+Ты сам self при обычном вызове не передаёшь — Python делает это автоматически.
+
+7. Атрибут класса и атрибут объекта
+
+Смотри:
+
+class Dog:
+    species = "Canis familiaris"
+
+    def __init__(self, name):
+        self.name = name
+
+Здесь:
+
+species
+
+— атрибут класса.
+
+А:
+
+self.name
+
+— атрибут конкретного объекта.
+
+Поэтому:
+
+dog1 = Dog("Rex")
+dog2 = Dog("Bob")
+
+У обоих:
+
+dog1.species
+dog2.species
+
+будет одно и то же значение.
+
+Но:
+
+dog1.name
+dog2.name
+
+разные.
+
+8. Изменение атрибута
+
+Если:
+
+dog = Dog("Rex")
+
+можно сделать:
+
+dog.name = "Max"
+
+Теперь:
+
+print(dog.name)
+
+→ Max.
+
+Объекты по умолчанию не являются неизменяемыми.
+
+9. Наследование
+
+Теперь следующий уровень.
+
+Допустим, есть:
+
+class Animal:
+    def eat(self):
+        print("Eating")
+
+Создадим:
+
+class Dog(Animal):
+    def bark(self):
+        print("Woof!")
+
+Dog наследуется от Animal.
+
+Поэтому:
+
+dog = Dog()
+
+dog.eat()
+dog.bark()
+
+работает:
+
+Eating
+Woof!
+
+Хотя eat() мы написали только в Animal.
+
+Получается:
+
+Animal
+   ↑
+   │ наследование
+   │
+  Dog
+10. super()
+
+Если дочерний класс хочет вызвать __init__ родителя:
+
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)
+        self.breed = breed
+
+Теперь:
+
+dog = Dog("Rex", "Husky")
+
+В объекте будут:
+
+name  → Rex
+breed → Husky
+
+super() позволяет обратиться к реализации родительского класса.
+
+🧠 Теория закончилась. Теперь ты.
+Задание 1 — без запуска
+
+Что выведет?
+
+class Dog:
+    def __init__(self, name):
+        self.name = name
+
+    def bark(self):
+        print(f"{self.name}: Woof!")
+
+
+dog1 = Dog("Rex")
+dog2 = Dog("Max")
+
+dog1.bark()
+dog2.bark()
+
+Напиши вывод и объясни, почему имена разные.
+
+Задание 2
+
+Что здесь означает self?
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+Объясни своими словами, что произойдёт при:
+
+user = User("Alex")
+Задание 3
+
+Что выведет?
+
+class Counter:
+    def __init__(self):
+        self.value = 0
+
+    def increment(self):
+        self.value += 1
+
+
+counter = Counter()
+
+counter.increment()
+counter.increment()
+
+print(counter.value)
+
+Почему значение стало именно таким?
+
+Задание 4 — класс или объект?
+
+Для каждого названия скажи, что это:
+
+class Car:
+    pass
+
+car1 = Car()
+car2 = Car()
+Car — ?
+car1 — ?
+car2 — ?
+car1 is car2 — True или False?
+⌨️ Практика — теперь пишешь сам
+Задание 5 — User
+
+Создай класс:
+
+class User:
+    ...
+
+У пользователя должны быть:
+
+name
+age
+
+Например:
+
+user = User("Alex", 25)
+
+print(user.name)
+print(user.age)
+
+Должно вывести:
+
+Alex
+25
+Задание 6 — метод
+
+Добавь пользователю метод:
+
+introduce()
+
+Чтобы:
+
+user = User("Alex", 25)
+user.introduce()
+
+выводило:
+
+My name is Alex, I am 25 years old.
+🔥 Задание 7 — изменяем состояние объекта
+
+Создай:
+
+class BankAccount:
+    ...
+
+У него должен быть:
+
+balance
+
+и два метода:
+
+deposit(amount)
+withdraw(amount)
+
+Например:
+
+account = BankAccount(1000)
+
+account.deposit(500)
+account.withdraw(300)
+
+print(account.balance)
+
+Результат:
+
+1200
+
+Пока не нужно делать обработку ошибок — это мы уже проходили. Сосредоточься именно на том, как объект хранит своё состояние через self.
+
+⭐ Задание 8 — наследование
+
+Создай:
+
+class Animal:
+    def speak(self):
+        print("Some sound")
+
+
+class Dog(Animal):
+    ...
+
+Сделай так, чтобы:
+
+dog = Dog()
+dog.speak()
+
+выводило:
+
+Woof!
+
+Здесь попробуй самостоятельно разобраться, как переопределить метод родителя.
+
+Сегодня мне особенно интересно посмотреть на 5–8, потому что там будет видно, насколько ты действительно понял ООП, а не просто запомнил определения.
+
+Начни с 1–4, затем пиши код сам. Я буду проверять не только «работает/не работает», но и почему ты выбрал именно такое решение. 🥋🐍
