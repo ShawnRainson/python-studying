@@ -2692,3 +2692,397 @@ Woof!
 Сегодня мне особенно интересно посмотреть на 5–8, потому что там будет видно, насколько ты действительно понял ООП, а не просто запомнил определения.
 
 Начни с 1–4, затем пиши код сам. Я буду проверять не только «работает/не работает», но и почему ты выбрал именно такое решение. 🥋🐍
+
+🥋 День 6 — Инкапсуляция
+1. Зачем вообще нужна инкапсуляция?
+
+Представь банковский счёт:
+
+class BankAccount:
+    def __init__(self, balance):
+        self.balance = balance
+
+Мы можем сделать:
+
+account = BankAccount(1000)
+account.balance = -500000
+
+Технически Python это позволит.
+
+Но с точки зрения логики программы — странно. 😄
+
+Мы хотим, чтобы баланс изменялся контролируемым способом:
+
+account.deposit(500)
+account.withdraw(200)
+
+То есть объект сам отвечает за корректность своего состояния.
+
+2. Публичные атрибуты
+
+Обычный атрибут:
+
+self.name = name
+
+считается публичным.
+
+Его можно использовать напрямую:
+
+user.name
+
+и менять:
+
+user.name = "Bob"
+3. _name — защищённый атрибут
+
+В Python можно написать:
+
+self._balance = balance
+
+Один _ означает примерно:
+
+«Это внутренний атрибут. Пожалуйста, не трогай его напрямую без необходимости».
+
+Но важный момент:
+
+Python технически не запрещает доступ.
+
+Можно:
+
+account._balance
+
+Это скорее соглашение между разработчиками, чем настоящая защита.
+
+4. __balance — приватный атрибут
+
+А вот два подчёркивания:
+
+self.__balance = balance
+
+работают интереснее.
+
+Например:
+
+class BankAccount:
+    def __init__(self, balance):
+        self.__balance = balance
+
+Теперь:
+
+account = BankAccount(1000)
+
+print(account.__balance)
+
+даст ошибку.
+
+Python изменяет имя атрибута внутри объекта. Это называется name mangling.
+
+Условно:
+
+__balance
+    ↓
+_BankAccount__balance
+
+Поэтому напрямую обратиться к account.__balance нельзя обычным способом.
+
+5. Но зачем это нужно?
+
+Например:
+
+class BankAccount:
+    def __init__(self, balance):
+        self.__balance = balance
+
+    def deposit(self, amount):
+        if amount > 0:
+            self.__balance += amount
+
+    def get_balance(self):
+        return self.__balance
+
+Теперь пользователь класса не должен напрямую менять баланс:
+
+account = BankAccount(1000)
+
+account.deposit(500)
+
+print(account.get_balance())
+
+Получаем:
+
+1500
+
+А если:
+
+account.deposit(-100000)
+
+метод может просто не позволить это сделать.
+
+6. Но есть проблема с get_balance()
+
+В Python часто вместо:
+
+account.get_balance()
+
+хочется писать:
+
+account.balance
+
+И здесь появляется очень важный механизм:
+
+@property
+7. @property
+
+Смотри:
+
+class BankAccount:
+    def __init__(self, balance):
+        self.__balance = balance
+
+    @property
+    def balance(self):
+        return self.__balance
+
+Теперь:
+
+account = BankAccount(1000)
+
+print(account.balance)
+
+вызывает метод balance, но выглядит как обычный атрибут.
+
+То есть:
+
+account.balance
+
+фактически вызывает:
+
+balance()
+
+но круглые скобки писать не нужно.
+
+8. @property + @setter
+
+А теперь самое интересное.
+
+Мы можем контролировать и получение, и изменение значения:
+
+class Person:
+    def __init__(self, age):
+        self.__age = age
+
+    @property
+    def age(self):
+        return self.__age
+
+    @age.setter
+    def age(self, value):
+        if value < 0:
+            raise ValueError("Age cannot be negative")
+
+        self.__age = value
+
+Теперь:
+
+person = Person(25)
+
+print(person.age)
+
+→ 25
+
+А:
+
+person.age = 30
+
+разрешено.
+
+Но:
+
+person.age = -10
+
+вызовет:
+
+ValueError
+
+То есть мы получили контролируемый доступ:
+
+person.age
+    ↓
+ getter → получить значение
+
+
+person.age = 30
+    ↓
+ setter → проверить и изменить значение
+🧠 Главное различие
+
+Запомни пока так:
+
+Запись	Смысл
+self.name	публичный атрибут
+self._name	внутренний атрибут, соглашение
+self.__name	name mangling / «приватный» атрибут
+@property	контролируемое получение значения
+@name.setter	контролируемое изменение значения
+
+И важная оговорка:
+
+В Python нет такой жёсткой приватности, как, например, в некоторых других языках. Даже __name технически можно найти через преобразованное имя.
+
+🤔 Теперь проверяем понимание
+Задание 1 — без запуска
+
+Что произойдёт?
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+
+user = User("Alex")
+
+print(user.name)
+
+user.name = "Bob"
+
+print(user.name)
+Что выведется?
+Почему user.name можно изменить напрямую?
+Задание 2 — один _
+
+Что произойдёт?
+
+class User:
+    def __init__(self, name):
+        self._name = name
+
+
+user = User("Alex")
+
+print(user._name)
+
+Будет ли ошибка?
+
+И главное:
+
+Что означает _name в Python?
+
+Задание 3 — два _
+
+Что произойдёт?
+
+class User:
+    def __init__(self, name):
+        self.__name = name
+
+
+user = User("Alex")
+
+print(user.__name)
+
+Будет ли работать?
+
+Если нет — почему?
+
+Задание 4 — @property
+
+Что выведет?
+
+class User:
+    def __init__(self, name):
+        self.__name = name
+
+    @property
+    def name(self):
+        return self.__name
+
+
+user = User("Alex")
+
+print(user.name)
+
+И ответь:
+
+почему здесь мы пишем user.name, а не user.name()?
+
+⌨️ Практика — теперь код пишешь ты
+Задание 5 — защищённый баланс
+
+Создай:
+
+class BankAccount:
+
+У него должен быть приватный атрибут:
+
+__balance
+
+и методы:
+
+deposit(amount)
+withdraw(amount)
+
+Правила:
+
+deposit увеличивает баланс;
+withdraw уменьшает баланс;
+нельзя положить отрицательную сумму;
+нельзя снять больше, чем есть на балансе.
+
+Например:
+
+account = BankAccount(1000)
+
+account.deposit(500)
+account.withdraw(300)
+
+После этого баланс должен быть 1200.
+
+🔥 Задание 6 — Property
+
+Переделай BankAccount, чтобы баланс можно было получать вот так:
+
+print(account.balance)
+
+но внутри он хранился как:
+
+__balance
+
+Используй:
+
+@property
+⭐ Задание 7 — самое важное
+
+Создай класс:
+
+class User:
+
+У пользователя есть возраст.
+
+Сделай так, чтобы:
+
+user = User(25)
+
+print(user.age)
+
+выводило:
+
+25
+
+Но:
+
+user.age = -10
+
+вызывало:
+
+ValueError
+
+Используй:
+
+__age;
+@property;
+@age.setter;
+raise ValueError.
+
+Сегодня я особенно хочу посмотреть задания 5–7. Там будет видно, понял ли ты саму идею инкапсуляции, а не только синтаксис.
+
+И не переживай, если @property сначала покажется странным. Это как раз одна из тех конструкций Python, которые сначала выглядят как магия, а после пары практических задач становятся совершенно естественными. 🥋
