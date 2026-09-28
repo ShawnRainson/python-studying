@@ -3086,3 +3086,333 @@ raise ValueError.
 Сегодня я особенно хочу посмотреть задания 5–7. Там будет видно, понял ли ты саму идею инкапсуляции, а не только синтаксис.
 
 И не переживай, если @property сначала покажется странным. Это как раз одна из тех конструкций Python, которые сначала выглядят как магия, а после пары практических задач становятся совершенно естественными. 🥋
+
+🥋 День 7 — @classmethod и @staticmethod
+
+После сегодняшнего занятия ты должен чётко понимать разницу между:
+
+self
+cls
+
+и обычным методом без них.
+
+1. Обычный метод — self
+
+Начнём с того, что уже знаем:
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def say_hello(self):
+        return f"Hello, {self.name}!"
+
+Создаём объект:
+
+user = User("Alex")
+
+Когда пишем:
+
+user.say_hello()
+
+Python фактически передаёт объект в метод:
+
+User.say_hello(user)
+
+Поэтому:
+
+def say_hello(self):
+
+self — это конкретный объект.
+
+2. @classmethod
+
+Теперь появляется cls.
+
+class User:
+    count = 0
+
+    def __init__(self, name):
+        self.name = name
+        User.count += 1
+
+    @classmethod
+    def get_count(cls):
+        return cls.count
+
+Используем:
+
+user1 = User("Alex")
+user2 = User("Bob")
+
+print(User.get_count())
+
+Получим:
+
+2
+Что такое cls?
+
+Очень просто:
+
+self → конкретный объект
+cls  → сам класс
+
+То есть:
+
+user1
+
+— это объект.
+
+А:
+
+User
+
+— это класс.
+
+@classmethod получает именно класс.
+
+3. Зачем нужен @classmethod?
+
+Одна из самых распространённых причин — альтернативный способ создания объекта.
+
+Например:
+
+class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    @classmethod
+    def from_string(cls, data):
+        name, age = data.split(",")
+        return cls(name, int(age))
+
+Теперь можем написать:
+
+user = User.from_string("Alex,25")
+
+Вместо:
+
+user = User("Alex", 25)
+
+Внутри:
+
+return cls(name, int(age))
+
+cls здесь — это User.
+
+То есть фактически:
+
+return User(name, int(age))
+
+Но cls лучше, потому что сохраняет работоспособность при наследовании.
+
+4. @staticmethod
+
+Теперь третий вариант.
+
+class Math:
+
+    @staticmethod
+    def add(a, b):
+        return a + b
+
+Можно написать:
+
+print(Math.add(5, 3))
+
+Получим:
+
+8
+
+И здесь нет:
+
+self
+
+и нет:
+
+cls
+
+Почему?
+
+Потому что этому методу вообще не нужен ни объект, ни класс.
+
+Он просто логически относится к классу.
+
+Например:
+
+class Math:
+
+    @staticmethod
+    def is_even(number):
+        return number % 2 == 0
+
+Используем:
+
+print(Math.is_even(10))
+
+Получим:
+
+True
+🧠 Главная таблица дня
+
+Запомни её:
+
+Метод	Первый параметр	Имеет доступ к
+обычный	self	объекту
+@classmethod	cls	классу
+@staticmethod	ничего	ни к объекту, ни к классу
+
+То есть:
+
+обычный метод
+     ↓
+   self
+     ↓
+конкретный объект
+classmethod
+     ↓
+    cls
+     ↓
+    класс
+staticmethod
+     ↓
+ ничего
+     ↓
+обычная функция внутри класса
+⚠️ Важный нюанс
+
+staticmethod не означает «более быстрый метод» или «особый метод».
+
+Это просто способ сказать:
+
+«Эта функция логически относится к этому классу, но ей не нужен ни объект, ни сам класс».
+
+🧪 Проверка понимания — без запуска
+Задание 1
+
+Что произойдёт?
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def hello(self):
+        return f"Hello {self.name}"
+
+user = User("Alex")
+
+print(user.hello())
+
+Вопросы:
+
+Что выведется?
+Что такое self внутри hello()?
+Почему здесь нужен self?
+Задание 2 — classmethod
+class User:
+    count = 0
+
+    def __init__(self, name):
+        self.name = name
+        User.count += 1
+
+    @classmethod
+    def get_count(cls):
+        return cls.count
+
+user1 = User("Alex")
+user2 = User("Bob")
+user3 = User("John")
+
+print(User.get_count())
+
+Ответь:
+
+Что выведется?
+Что такое cls?
+Что будет находиться в cls во время выполнения get_count()?
+Задание 3 — главное отличие
+
+Что произойдёт здесь?
+
+class User:
+    count = 0
+
+    @classmethod
+    def show_count(cls):
+        return cls.count
+
+    @staticmethod
+    def say_hello():
+        return "Hello!"
+
+print(User.show_count())
+print(User.say_hello())
+
+Почему show_count() получает cls, а say_hello() — нет?
+
+🔥 Задание 4 — пишем код
+
+Создай класс:
+
+class User:
+
+У него должны быть:
+
+Обычный метод
+__init__(self, name, age)
+
+который сохраняет:
+
+self.name
+self.age
+classmethod
+
+Создай:
+
+from_string(cls, data)
+
+Чтобы можно было написать:
+
+user = User.from_string("Alex,25")
+
+и получить объект:
+
+user.name  # Alex
+user.age   # 25
+
+Подсказка:
+
+name, age = data.split(",")
+
+Не забудь преобразовать возраст в int.
+
+⭐ Задание 5 — staticmethod
+
+Добавь в этот же класс:
+
+@staticmethod
+def is_adult(age):
+
+Метод должен возвращать:
+
+True
+
+если возраст >= 18, иначе:
+
+False
+
+Чтобы работало:
+
+print(User.is_adult(25))  # True
+print(User.is_adult(15))  # False
+🎯 Твоя задача сегодня
+
+Иди по порядку:
+
+1 → 2 → 3 — отвечаешь без запуска.
+
+Затем 4 → 5 — пишешь код самостоятельно.
+
+Я проверю каждую часть и, если где-то будет пробел, разберём его как настоящий сенсей. 🥋
