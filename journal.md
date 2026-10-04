@@ -3416,3 +3416,445 @@ print(User.is_adult(15))  # False
 Затем 4 → 5 — пишешь код самостоятельно.
 
 Я проверю каждую часть и, если где-то будет пробел, разберём его как настоящий сенсей. 🥋
+
+🐍 День 8 — специальные методы
+1. Что такое __str__?
+
+Представим обычный класс:
+
+class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+user = User("Alex", 25)
+
+print(user)
+
+Без специального метода Python не знает, как красиво представить объект.
+
+Поэтому мы можем определить:
+
+class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return f"User: {self.name}, age: {self.age}"
+
+Теперь:
+
+print(user)
+
+даст:
+
+User: Alex, age: 25
+Что здесь происходит?
+
+Когда ты пишешь:
+
+print(user)
+
+Python примерно обращается к:
+
+str(user)
+
+а str(user) использует:
+
+user.__str__()
+
+То есть:
+
+print(user)
+    ↓
+str(user)
+    ↓
+user.__str__()
+2. __repr__
+
+Есть ещё:
+
+__repr__
+
+Он предназначен для технического представления объекта, особенно полезного разработчику.
+
+Например:
+
+class User:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __repr__(self):
+        return f"User(name={self.name!r}, age={self.age})"
+
+Теперь:
+
+user = User("Alex", 25)
+
+print(user)
+
+Если __str__ нет, Python может использовать __repr__ как запасной вариант.
+
+Получим:
+
+User(name='Alex', age=25)
+
+Для начала запомни:
+
+__str__  → человеку
+__repr__ → разработчику
+3. __len__
+
+А теперь интереснее.
+
+Допустим, у нас есть корзина:
+
+class Cart:
+    def __init__(self):
+        self.items = []
+
+Мы хотим:
+
+cart = Cart()
+
+cart.items.append("Apple")
+cart.items.append("Milk")
+
+print(len(cart))
+
+Но без __len__ Python не знает, как определить длину Cart.
+
+Добавляем:
+
+class Cart:
+    def __init__(self):
+        self.items = []
+
+    def __len__(self):
+        return len(self.items)
+
+Теперь:
+
+len(cart)
+
+фактически вызывает:
+
+cart.__len__()
+4. __eq__ — сравнение объектов
+
+Вот здесь очень важный момент.
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+Создадим:
+
+user1 = User("Alex")
+user2 = User("Alex")
+
+Что будет?
+
+print(user1 == user2)
+
+По умолчанию это будет:
+
+False
+
+Потому что это два разных объекта.
+
+Если мы хотим определить собственное правило сравнения:
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+Теперь:
+
+user1 = User("Alex")
+user2 = User("Alex")
+
+print(user1 == user2)
+
+Получим:
+
+True
+
+Потому что:
+
+user1 == user2
+
+примерно означает:
+
+user1.__eq__(user2)
+5. __lt__ — меньше
+
+Можно определить поведение <.
+
+Например:
+
+class User:
+    def __init__(self, age):
+        self.age = age
+
+    def __lt__(self, other):
+        return self.age < other.age
+
+Теперь:
+
+alex = User(25)
+bob = User(30)
+
+print(alex < bob)
+
+Получим:
+
+True
+
+Потому что Python вызывает примерно:
+
+alex.__lt__(bob)
+6. __add__ — оператор +
+
+Это уже настоящая магия. 😎
+
+Создадим:
+
+class Money:
+    def __init__(self, amount):
+        self.amount = amount
+
+    def __add__(self, other):
+        return Money(self.amount + other.amount)
+
+Теперь:
+
+money1 = Money(100)
+money2 = Money(50)
+
+money3 = money1 + money2
+
+Python примерно делает:
+
+money3 = money1.__add__(money2)
+
+И:
+
+money3.amount
+
+будет:
+
+150
+7. __getitem__
+
+Можно сделать объект похожим на список или словарь.
+
+class Cart:
+    def __init__(self):
+        self.items = ["Apple", "Milk", "Bread"]
+
+    def __getitem__(self, index):
+        return self.items[index]
+
+Теперь:
+
+cart = Cart()
+
+print(cart[0])
+
+Python вызывает:
+
+cart.__getitem__(0)
+
+Результат:
+
+Apple
+
+И даже:
+
+print(cart[1])
+
+работает.
+
+🧠 Главная идея сегодняшнего дня
+
+Вот эта таблица — твоя шпаргалка:
+
+Синтаксис	Специальный метод
+str(obj) / print(obj)	__str__
+repr(obj)	__repr__
+len(obj)	__len__
+a == b	__eq__
+a < b	__lt__
+a + b	__add__
+obj[index]	__getitem__
+
+То есть специальные методы позволяют сказать Python:
+
+«Когда пользователь пишет такой обычный Python-синтаксис, вот как должен вести себя мой объект».
+
+🧪 Практика — часть 1
+
+Без запуска.
+
+Задание 1
+
+Что выведет:
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return f"User: {self.name}"
+
+
+user = User("Alex")
+
+print(user)
+
+И почему print(user) вызывает __str__?
+
+Задание 2
+
+Что произойдёт?
+
+class Cart:
+    def __init__(self):
+        self.items = ["Apple", "Milk"]
+
+    def __len__(self):
+        return len(self.items)
+
+
+cart = Cart()
+
+print(len(cart))
+
+Что будет находиться в self внутри __len__?
+
+Задание 3
+
+Без запуска:
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+
+user1 = User("Alex")
+user2 = User("Alex")
+user3 = User("Bob")
+
+print(user1 == user2)
+print(user1 == user3)
+
+Что выведется и почему?
+
+🔥 Практика — часть 2
+
+Теперь код пишешь ты.
+
+Задание 4 — __str__
+
+Создай:
+
+class Book:
+
+У книги должны быть:
+
+title
+author
+
+Сделай __str__, чтобы:
+
+book = Book("1984", "George Orwell")
+print(book)
+
+выводило примерно:
+
+1984 — George Orwell
+Задание 5 — __len__
+
+Создай:
+
+class Playlist:
+
+В ней:
+
+self.songs
+
+— список песен.
+
+Сделай __len__, чтобы работало:
+
+playlist = Playlist(["Song 1", "Song 2", "Song 3"])
+
+print(len(playlist))
+
+Результат:
+
+3
+⭐ Задание 6 — __eq__
+
+Создай:
+
+class User:
+
+с атрибутами:
+
+name
+age
+
+И сделай так, чтобы:
+
+user1 = User("Alex", 25)
+user2 = User("Alex", 25)
+user3 = User("Bob", 30)
+
+давали:
+
+print(user1 == user2)  # True
+print(user1 == user3)  # False
+
+Сравнение должно учитывать и имя, и возраст.
+
+🔥 Бонус — __getitem__
+
+Если останутся силы:
+
+class Team:
+
+Пусть внутри:
+
+self.players
+
+— список игроков.
+
+Сделай __getitem__, чтобы:
+
+team = Team(["Alex", "Bob", "John"])
+
+print(team[0])
+print(team[2])
+
+работало как со списком.
+
+Сегодня главное — не пытайся запомнить все dunder-методы. Намного важнее увидеть закономерность:
+
+обычный синтаксис Python
+        ↓
+специальный метод
+        ↓
+твоя логика
+
+Жду сначала ответы 1–3, затем посмотрим твой код 4–6. 🥋
