@@ -1,39 +1,36 @@
-#Homework
 class Notification:
     def __init__(self, recipient):
         self.recipient = recipient
 
     def send(self):
-        return "Sending "
+        return f"Sending notification for {self.recipient}"
+
+    def __str__(self):
+        return f"Notification for {self.recipient}"
+
+    def change_recipient(self, new_recipient):
+        if new_recipient.strip() == " ":
+            raise ValueError("Recipient cannot be empty")
+        self.recipient = new_recipient
 
 class EmailNotification(Notification):
-    def __init__(self, recipient):
-        super().__init__(recipient)
-
     def send(self):
-        return super().send() + "Email"
+        return f"Sending Email to {self.recipient}"
 
     def __str__(self):
-        return f"{self.recipient} got a new Email."
+        return "Email " + super().__str__()
     
 class SMSNotification(Notification):
-    def __init__(self, recipient):
-        super().__init__(recipient)
-
     def send(self):
-        return super().send() + "SMS"
+        return f"Sending SMS to {self.recipient}"
 
     def __str__(self):
-        return f"{self.recipient} got a new SMS."
+        return "SMS " + super().__str__()
 
-rec1 = EmailNotification("Mia")
-rec2 = SMSNotification("Rachel")
-print(rec1)
-print(rec2)
+notes = [SMSNotification("Mia"), EmailNotification("Alex"), EmailNotification("Rachel")]
+for note in notes:
+    print(note.send())
 
-notifications = [rec1, rec2]
-for notification in notifications:
-    print(notification.send())
-
-
-        
+recipient = EmailNotification("Mike")
+recipient.change_recipient("Antony")
+print(recipient)

@@ -52,11 +52,11 @@ for notification in notifications:
 #Задание 8. Инкапсуляция и @property
 class User:
     def __init__(self, age):
-        self.__age = age
+        self.age = age
 
     @property
     def age(self):
-        return f"User age: {self.__age}"
+        return self.__age
 
     @age.setter
     def age(self, value):
