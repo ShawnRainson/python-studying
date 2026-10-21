@@ -9,7 +9,8 @@ class Notification:
         return f"Notification for {self.recipient}"
 
     def change_recipient(self, new_recipient):
-        if new_recipient.strip() == " ":
+        new_recipient = new_recipient.strip()
+        if not new_recipient.strip():
             raise ValueError("Recipient cannot be empty")
         self.recipient = new_recipient
 
